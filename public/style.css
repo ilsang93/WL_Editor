@@ -1,0 +1,528 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #222;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+#sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background: #333;
+  overflow-y: auto;
+  overflow-x: hidden; /* 가로 스크롤 숨김 */
+  z-index: 100;
+  border-right: 2px solid #555;
+  transition: left 0.3s ease; /* 슬라이드 애니메이션 */
+}
+
+#sidebar.hidden {
+  left: -400px; /* 완전히 숨김 */
+}
+
+#sidebar table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  table-layout: fixed; /* 테이블 레이아웃 고정 */
+}
+
+#sidebar th, #sidebar td {
+  border: 1px solid #555;
+  padding: 2px; /* 패딩 줄임 */
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px; /* 폰트 크기 줄임 */
+}
+
+/* 열 너비 지정 - 더 컴팩트하게 */
+#sidebar th:nth-child(1), #sidebar td:nth-child(1) { width: 25px; }   /* NO. */
+#sidebar th:nth-child(2), #sidebar td:nth-child(2) { width: 50px; }   /* Type */
+#sidebar th:nth-child(3), #sidebar td:nth-child(3) { width: 65px; }   /* Beat */
+#sidebar th:nth-child(4), #sidebar td:nth-child(4) { width: 55px; }   /* Time */
+#sidebar th:nth-child(5), #sidebar td:nth-child(5) { width: 70px; }   /* Direction */
+#sidebar th:nth-child(6), #sidebar td:nth-child(6) { width: 40px; }   /* Delete */
+
+/* Beat 입력 필드 크기 조정 */
+#sidebar td:nth-child(3) input {
+  width: 58px; /* 더 작게 */
+  padding: 1px 3px;
+  font-size: 10px;
+  border: 1px solid #666;
+}
+
+/* Direction 선택 필드 크기 조정 */
+#sidebar td:nth-child(5) select {
+  width: 65px; /* 더 작게 */
+  padding: 1px;
+  font-size: 10px;
+  border: 1px solid #666;
+}
+
+/* 삭제 버튼 크기 조정 */
+#sidebar td:nth-child(6) button {
+  width: 35px; /* 더 작게 */
+  padding: 1px 3px;
+  font-size: 9px;
+  border: 1px solid #666;
+}
+
+#sidebar th {
+  background: #444;
+}
+
+#sidebar tr:hover {
+  background: #444;
+}
+
+#sidebar tr.highlight {
+  background: #666 !important;
+}
+
+/* 사이드바 토글 버튼 */
+.sidebar-toggle {
+  position: fixed; /* fixed로 변경 */
+  top: 50%;
+  left: 400px; /* 사이드바 오른쪽에 위치 */
+  width: 40px;
+  height: 60px;
+  background: #333;
+  border: 2px solid #555;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 101;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle:hover {
+  background: #444;
+  left: 405px;
+  top: 50%;
+}
+
+.sidebar-toggle.hidden {
+  left: 0; /* 사이드바가 숨겨졌을 때 화면 왼쪽 끝에 위치 */
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 120px);
+  background: #494949;
+  cursor: grab;
+}
+
+#canvas:active {
+  cursor: grabbing;
+}
+
+#top-bar, #bottom-bar {
+  height: 60px;
+  background: #444;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border-bottom: 1px solid #555;
+}
+
+#bottom-bar {
+  border-top: 1px solid #555;
+  border-bottom: none;
+}
+
+#bottom-bar {
+  height: 60px;
+  background: #444;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border-top: 1px solid #555;
+  border-bottom: none;
+  position: relative;
+  z-index: 50;
+}
+
+button {
+  padding: 8px 16px;
+  background: #555;
+  color: #fff;
+  border: 1px solid #777;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #666;
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  background: #333;
+  color: #777;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#control-bar button {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* #control-bar를 우상단의 독립된 섬처럼 표시하도록 수정 */
+#control-bar {
+  position: fixed;
+  top: 60px; /* top-bar 아래 */
+  right: 20px;
+  width: auto;
+  height: auto;
+  background: #444;
+  padding: 10px 16px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 300;
+  box-sizing: border-box;
+  transition: right 0.3s ease; /* 슬라이드 애니메이션 */
+}
+
+#control-bar.hidden {
+  right: -700px; /* 컨트롤바 완전히 숨김 (더 큰 값으로 수정) */
+}
+
+/* 컨트롤바 토글 버튼 */
+.control-bar-toggle {
+  position: fixed; /* fixed로 변경 */
+  top: 20px; /* control-bar와 같은 높이 */
+  right: 0px; /* 컨트롤바 왼쪽에 위치 (컨트롤바 예상 너비: 280px + 여유) */
+  width: 40px;
+  height: 40px;
+  background: #444;
+  border: 1px solid #555;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 301;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.control-bar-toggle:hover {
+  background: #444;
+}
+
+.control-bar-toggle.hidden {
+  right: 0; /* 컨트롤바가 숨겨졌을 때 화면 오른쪽 끝에 위치 */
+}
+
+#control-bar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 수평 중앙 정렬 */
+  justify-content: center; /* 수직 중앙 정렬 */
+  gap: 10px;
+  text-align: center;
+}
+
+#audio-controls,
+#playback-controls,
+#time-controls,
+#note-controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* #main의 margin-bottom 제거 */
+#main {
+  margin-left: 400px;
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  transition: margin-left 0.3s ease; /* 슬라이드 애니메이션 */
+}
+
+#main.sidebar-hidden {
+  margin-left: 0; /* 사이드바가 숨겨졌을 때 전체 너비 사용 */
+}
+
+input[type="file"] {
+  padding: 6px 10px;
+  background: rgba(85, 85, 85, 0.8);
+  color: #fff;
+  border: 1px solid rgba(119, 119, 119, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+input[type="number"], select {
+  padding: 4px 8px;
+  background: #555;
+  color: #fff;
+  border: 1px solid #777;
+  border-radius: 4px;
+}
+
+input[type="range"] {
+  width: 100%;
+  background: transparent;
+  outline: none;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+input[type="range"]:hover {
+  opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(85, 85, 85, 0.5);
+  border-radius: 3px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4CAF50;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-top: -5px;
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(85, 85, 85, 0.5);
+  border-radius: 3px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #4CAF50;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+}
+
+#demo-time {
+  color: #ddd;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+#note-controls button {
+  font-weight: bold;
+  padding: 8px 16px;
+}
+
+#note-controls button.tab {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  border: 1px solid #b71c1c;
+}
+
+#note-controls button.tab:hover {
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+}
+
+#note-controls button.dir {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  border: 1px solid #0d47a1;
+}
+
+#note-controls button.dir:hover {
+  background: linear-gradient(135deg, #1976D2, #0d47a1);
+}
+
+/* 토글 버튼 공통 스타일 */
+.toggle-btn {
+  padding: 8px 12px !important;
+  background: #066 !important;
+  color: white !important;
+  border: 1px solid #555 !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  user-select: none !important;
+}
+
+.toggle-btn:hover {
+  background: #444 !important;
+  transform: none !important;
+}
+
+/* Waveform Container - 플로팅 기능 */
+#waveform-container {
+  position: fixed;
+  bottom: -260px; /* 기본적으로 숨겨진 상태 */
+  left: 400px; /* 사이드바 너비만큼 오프셋 */
+  right: 0;
+  height: 310px;
+  background: rgba(40, 40, 40, 0.95);
+  border-top: 3px solid #4CAF50;
+  transition: bottom 0.3s ease, left 0.3s ease; /* left도 애니메이션 */
+  z-index: 250; /* control-bar보다 아래에 */
+  padding: 10px;
+  box-sizing: border-box;
+  backdrop-filter: blur(5px);
+  pointer-events: auto;
+}
+
+#waveform-container.visible {
+  bottom: 0; /* 표시될 때 완전히 올라옴 */
+}
+
+#waveform-container.sidebar-hidden {
+  left: 0; /* 사이드바가 숨겨졌을 때 전체 너비 사용 */
+}
+
+#waveform-controls {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+#waveform-controls button {
+  padding: 5px 10px;
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+#waveform-controls button:hover {
+  background: #555;
+}
+
+#waveform-zoom-level {
+  color: #ccc;
+  margin-left: 10px;
+}
+
+#waveform-wrapper {
+  position: relative;
+  height: 190px;
+  overflow: hidden;
+  border: 1px solid #333;
+  background: #111;
+}
+
+#waveform-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 120px;
+  display: block;
+  cursor: crosshair;
+}
+
+#ruler-canvas {
+  position: absolute;
+  top: 125px;
+  left: 0;
+  height: 40px;
+  display: block;
+  background: #222;
+  border-top: 1px solid #333;
+}
+
+#waveform-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 165px;
+  background: #ff4444;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+#waveform-scrollbar {
+  margin-top: 5px;
+  height: 20px;
+}
+
+#waveform-slider {
+  width: 100%;
+  height: 20px;
+  background: #333;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+#waveform-slider:hover {
+  opacity: 1;
+}
+
+#waveform-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4CAF50;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+#waveform-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #4CAF50;
+  cursor: pointer;
+  border-radius: 3px;
+  border: none;
+}
+
+/* 트리거 영역 */
+.waveform-trigger-zone {
+  position: fixed;
+  bottom: 0;
+  left: 400px; /* 사이드바 너비만큼 오프셋 */
+  right: 0;
+  height: 30px; /* 트리거 영역 높이 */
+  z-index: 999;
+  pointer-events: all;
+  transition: left 0.3s ease; /* left도 애니메이션 */
+  /* 디버깅용 배경 (필요시 주석 해제) */
+  /* background: rgba(255, 0, 0, 0.1); */
+}
+
+.waveform-trigger-zone.sidebar-hidden {
+  left: 0; /* 사이드바가 숨겨졌을 때 전체 너비 사용 */
+}
