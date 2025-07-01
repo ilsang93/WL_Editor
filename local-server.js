@@ -1,5 +1,5 @@
 // local-server.js
-// 간단한 Express 서버로 index.html 실행
+// 로컬에 설치하여 작동하는 방식의 에디터
 
 const express = require('express');
 const path = require('path');
