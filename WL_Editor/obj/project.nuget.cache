@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "E/LcbjICWC0=",
+  "success": true,
+  "projectFilePath": "I:\\workspace\\WL_Editor\\WL_Editor\\WL_Editor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\pchm2\\.nuget\\packages\\system.io.pipelines\\9.0.7\\system.io.pipelines.9.0.7.nupkg.sha512",
+    "C:\\Users\\pchm2\\.nuget\\packages\\system.text.encodings.web\\9.0.7\\system.text.encodings.web.9.0.7.nupkg.sha512",
+    "C:\\Users\\pchm2\\.nuget\\packages\\system.text.json\\9.0.7\\system.text.json.9.0.7.nupkg.sha512"
+  ],
+  "logs": []
+}

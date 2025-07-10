@@ -1,0 +1,370 @@
+﻿<Window x:Class="WL_Editor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WL Editor" Height="800" Width="1400"
+        WindowState="Maximized" Background="#FF222222">
+
+    <Window.Resources>
+        <!-- 다크 테마 스타일 -->
+        <Style TargetType="Button" x:Key="DarkButton">
+            <Setter Property="Background" Value="#FF555555"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF777777"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF666666"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#FF444444"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox" x:Key="DarkTextBox">
+            <Setter Property="Background" Value="#FF555555"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF777777"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+
+        <Style TargetType="ComboBox" x:Key="DarkComboBox">
+            <Setter Property="Background" Value="#FF555555"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF777777"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+
+        <Style TargetType="DataGrid" x:Key="DarkDataGrid">
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="GridLinesVisibility" Value="All"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#FF555555"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#FF555555"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserResizeColumns" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+        </Style>
+
+        <!-- 토글 버튼 스타일 -->
+        <Style TargetType="ToggleButton" x:Key="SidebarToggle">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+            <Setter Property="BorderThickness" Value="2,2,0,2"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- 메인 레이아웃 -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="SidebarColumn" Width="400"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 사이드바 -->
+        <Border x:Name="SidebarBorder" Grid.Column="0" Background="#FF333333" BorderBrush="#FF555555" BorderThickness="0,0,2,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 설정 패널 -->
+                <StackPanel Grid.Row="0" Margin="10" Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <Label Content="BPM:" Foreground="White" Width="80"/>
+                        <TextBox x:Name="BpmTextBox" Text="120" Width="80" Style="{StaticResource DarkTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <Label Content="Pre-delay:" Foreground="White" Width="80"/>
+                        <TextBox x:Name="PreDelayTextBox" Text="3000" Width="80" Style="{StaticResource DarkTextBox}"/>
+                        <Label Content="ms" Foreground="White"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <Label Content="Subdivisions:" Foreground="White" Width="80"/>
+                        <ComboBox x:Name="SubdivisionsComboBox" Width="80" Style="{StaticResource DarkComboBox}">
+                            <ComboBoxItem Content="4분박" Tag="4"/>
+                            <ComboBoxItem Content="8분박" Tag="8"/>
+                            <ComboBoxItem Content="16분박" Tag="16" IsSelected="True"/>
+                            <ComboBoxItem Content="32분박" Tag="32"/>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 노트 리스트 -->
+                <DataGrid x:Name="NoteListDataGrid" Grid.Row="1" Margin="5" Style="{StaticResource DarkDataGrid}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="NO." Binding="{Binding Index}" Width="30" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="50" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Beat" Binding="{Binding Beat}" Width="65" IsReadOnly="False"/>
+                        <DataGridTextColumn Header="Time" Binding="{Binding TimeDisplay}" Width="85" IsReadOnly="True"/>
+                        <DataGridComboBoxColumn Header="Direction" SelectedItemBinding="{Binding Direction}" Width="80">
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemsSource">
+                                        <Setter.Value>
+                                            <x:Array Type="sys:String" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                                <sys:String>none</sys:String>
+                                                <sys:String>up</sys:String>
+                                                <sys:String>down</sys:String>
+                                                <sys:String>left</sys:String>
+                                                <sys:String>right</sys:String>
+                                                <sys:String>upleft</sys:String>
+                                                <sys:String>upright</sys:String>
+                                                <sys:String>downleft</sys:String>
+                                                <sys:String>downright</sys:String>
+                                            </x:Array>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemsSource">
+                                        <Setter.Value>
+                                            <x:Array Type="sys:String" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                                <sys:String>none</sys:String>
+                                                <sys:String>up</sys:String>
+                                                <sys:String>down</sys:String>
+                                                <sys:String>left</sys:String>
+                                                <sys:String>right</sys:String>
+                                                <sys:String>upleft</sys:String>
+                                                <sys:String>upright</sys:String>
+                                                <sys:String>downleft</sys:String>
+                                                <sys:String>downright</sys:String>
+                                            </x:Array>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridTemplateColumn Header="" Width="40">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="삭제" Style="{StaticResource DarkButton}" Click="DeleteNote_Click" Padding="2" FontSize="9"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- 사이드바 토글 버튼 -->
+        <ToggleButton x:Name="SidebarToggleButton" 
+                      HorizontalAlignment="Right" VerticalAlignment="Center" 
+                      Style="{StaticResource SidebarToggle}" 
+                      Content="◀" Click="SidebarToggle_Click"
+                      Canvas.ZIndex="100"/>
+
+        <!-- 메인 영역 -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+
+            <!-- 상단 툴바 -->
+            <Border Grid.Row="0" Background="#FF444444" BorderBrush="#FF555555" BorderThickness="0,0,0,1">
+                <StackPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Center">
+                    <Button Content="Save Json" Style="{StaticResource DarkButton}" Click="SaveJson_Click"/>
+                    <Button Content="Load Json" Style="{StaticResource DarkButton}" Click="LoadJson_Click"/>
+                    <Button Content="Sort by Beat" Style="{StaticResource DarkButton}" Click="SortNotes_Click"/>
+                    <Button Content="Clear All" Style="{StaticResource DarkButton}" Click="ClearAll_Click"/>
+
+                    <!-- 볼륨 컨트롤 -->
+                    <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                        <StackPanel Orientation="Vertical" Margin="10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="음악:" Foreground="White" Width="50"/>
+                                <Slider x:Name="MusicVolumeSlider" Width="100" Minimum="0" Maximum="100" Value="50" 
+                                        ValueChanged="MusicVolumeSlider_ValueChanged"/>
+                                <Label x:Name="MusicVolumeLabel" Content="50%" Foreground="White" Width="35"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="효과음:" Foreground="White" Width="50"/>
+                                <Slider x:Name="SfxVolumeSlider" Width="100" Minimum="0" Maximum="100" Value="100"
+                                        ValueChanged="SfxVolumeSlider_ValueChanged"/>
+                                <Label x:Name="SfxVolumeLabel" Content="100%" Foreground="White" Width="35"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 메인 캔버스 -->
+            <Border Grid.Row="1" Background="#FF494949">
+                <Canvas x:Name="MainCanvas" 
+                    MouseWheel="MainCanvas_MouseWheel"
+                    MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown"
+                    MouseMove="MainCanvas_MouseMove"
+                    MouseLeftButtonUp="MainCanvas_MouseLeftButtonUp"
+                    MouseRightButtonDown="MainCanvas_MouseRightButtonDown"
+                    Background="Transparent"
+                    ClipToBounds="True"/>
+            </Border>
+
+            <!-- 하단 컨트롤 -->
+            <Border Grid.Row="2" Background="#FF444444" BorderBrush="#FF555555" BorderThickness="0,1,0,0">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 오디오 컨트롤 -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="파일 선택" Style="{StaticResource DarkButton}" Click="SelectAudioFile_Click"/>
+                        <Button x:Name="PauseButton" Content="⏸" Style="{StaticResource DarkButton}" Click="PauseButton_Click"/>
+                        <Button x:Name="PlayButton" Content="▶" Style="{StaticResource DarkButton}" Click="PlayButton_Click"/>
+                        <Button x:Name="StopButton" Content="⏹" Style="{StaticResource DarkButton}" Click="StopButton_Click"/>
+                    </StackPanel>
+
+                    <!-- 시간 컨트롤 -->
+                    <StackPanel Grid.Column="1" Margin="20,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="TimeDisplay" Text="00:00:00 / 00:00:00" 
+                                   Foreground="#FFDDDDDD" HorizontalAlignment="Center" 
+                                   FontFamily="Courier New" FontSize="13" Background="#33000000" Padding="4"/>
+                        <Slider x:Name="SeekBar" Minimum="0" Maximum="1000" Value="0" 
+                                ValueChanged="SeekBar_ValueChanged" Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <!-- 노트 추가 버튼 -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Tab Note +" Style="{StaticResource DarkButton}" 
+                                Background="#FFD32F2F" Click="AddTabNote_Click"/>
+                        <Button Content="Direction Note +" Style="{StaticResource DarkButton}" 
+                                Background="#FF1976D2" Click="AddDirectionNote_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 웨이브폼 컨테이너 (플로팅) -->
+        <Border x:Name="WaveformContainer" 
+                Grid.ColumnSpan="2"
+                Background="#E6282828"
+                BorderBrush="#FF4CAF50" BorderThickness="0,3,0,0"
+                Height="310" VerticalAlignment="Bottom"
+                Margin="400,0,0,0"
+                Visibility="Collapsed">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 웨이브폼 컨트롤 -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                    <Button Content="+" Style="{StaticResource DarkButton}" Click="WaveformZoomIn_Click"/>
+                    <Button Content="-" Style="{StaticResource DarkButton}" Click="WaveformZoomOut_Click"/>
+                    <Button Content="Reset" Style="{StaticResource DarkButton}" Click="WaveformReset_Click"/>
+                    <Label x:Name="WaveformZoomLabel" Content="100%" Foreground="#FFCCCCCC" Margin="10,0"/>
+                </StackPanel>
+
+                <!-- 웨이브폼 캔버스 -->
+                <Border Grid.Row="1" Background="#FF111111" BorderBrush="#FF333333" BorderThickness="1">
+                    <Canvas x:Name="WaveformCanvas" Height="190" 
+                            MouseLeftButtonDown="WaveformCanvas_MouseLeftButtonDown"
+                            MouseWheel="WaveformCanvas_MouseWheel"
+                            ClipToBounds="True">
+                        <!-- 웨이브폼 그래픽 요소들이 여기에 동적으로 추가됨 -->
+                        <Line x:Name="WaveformProgress" X1="0" Y1="0" X2="0" Y2="190" 
+                              Stroke="#FFFF4444" StrokeThickness="2" Visibility="Collapsed"/>
+                    </Canvas>
+                </Border>
+
+                <!-- 웨이브폼 스크롤바 -->
+                <Slider x:Name="WaveformSlider" Grid.Row="2" Margin="0,5,0,0" 
+                        Minimum="0" Maximum="100" Value="0"
+                        ValueChanged="WaveformSlider_ValueChanged"/>
+            </Grid>
+        </Border>
+
+        <!-- 플로팅 컨트롤 패널 -->
+        <Border x:Name="ControlPanel"
+                Grid.Column="1"
+                Background="#E6444444"
+                BorderBrush="#FF555555" BorderThickness="1"
+                CornerRadius="8"
+                Width="280" Height="200"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,80,20,0"
+                Visibility="Visible">
+            <StackPanel Margin="15" VerticalAlignment="Center">
+                <!-- 오디오 파일 -->
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <Button Content="오디오 파일 선택" Style="{StaticResource DarkButton}" 
+                            Click="SelectAudioFile_Click" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock x:Name="AudioFileIndicator" Foreground="#FF4CAF50" 
+                           FontSize="12" Margin="0,5" HorizontalAlignment="Center"/>
+
+                <!-- 재생 컨트롤 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                    <Button x:Name="PauseButton2" Content="⏸" Style="{StaticResource DarkButton}" Click="PauseButton_Click"/>
+                    <Button x:Name="PlayButton2" Content="▶" Style="{StaticResource DarkButton}" Click="PlayButton_Click"/>
+                    <Button x:Name="StopButton2" Content="⏹" Style="{StaticResource DarkButton}" Click="StopButton_Click"/>
+                </StackPanel>
+
+                <!-- 시간 표시 -->
+                <TextBlock x:Name="TimeDisplay2" Text="00:00:00 / 00:00:00" 
+                           Foreground="#FFDDDDDD" HorizontalAlignment="Center" 
+                           FontFamily="Courier New" FontSize="13" Background="#33000000" 
+                           Padding="4" Margin="0,10"/>
+
+                <!-- 시크바 -->
+                <Slider x:Name="SeekBar2" Minimum="0" Maximum="1000" Value="0" 
+                        ValueChanged="SeekBar_ValueChanged" Margin="0,5"/>
+
+                <!-- 노트 추가 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                    <Button Content="Tab Note +" Style="{StaticResource DarkButton}" 
+                            Background="#FFD32F2F" Click="AddTabNote_Click" FontWeight="Bold"/>
+                    <Button Content="Direction Note +" Style="{StaticResource DarkButton}" 
+                            Background="#FF1976D2" Click="AddDirectionNote_Click" FontWeight="Bold"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 컨트롤 패널 토글 버튼 -->
+        <ToggleButton x:Name="ControlPanelToggleButton"
+                      Grid.Column="1"
+                      Width="40" Height="40"
+                      HorizontalAlignment="Right" VerticalAlignment="Top"
+                      Margin="0,20,0,0"
+                      Background="#FF444444"
+                      Foreground="White"
+                      BorderBrush="#FF555555"
+                      FontSize="18" FontWeight="Bold"
+                      Content="×"
+                      Click="ControlPanelToggle_Click"/>
+    </Grid>
+</Window>
